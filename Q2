@@ -1,0 +1,51 @@
+import java.sql.*;
+public class Q2{
+	public static void main(String[] args) {
+		System.out.println("MySQL Connect Example.");
+		Connection conn = null;
+		try {
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/College","root","");
+			System.out.println("Connected to the database\n");
+			Statement stmt = conn.createStatement();
+			
+			float limit = 9;
+			String query1 = "Select * from  Student where CGPA<"+limit;
+			ResultSet rs = stmt.executeQuery(query1);
+			System.out.println("Students with less than "+limit+" CGPA");
+	        while (rs.next()){
+					System.out.println(rs.getString(1)+" "+rs.getString(2)+" "+rs.getFloat(3));
+			} //end while
+			
+	        String updatequery = "update Student set CGPA=8.5 where Name='John'";
+	        int count = stmt.executeUpdate(updatequery);
+	        System.out.println("\nNo of rows updated = "+count);
+	        
+	        String query2 = "Select * from  Student";
+			rs = stmt.executeQuery(query2);
+			System.out.println("\nAll Student details");
+	        while (rs.next()){
+					System.out.println(rs.getString(1)+" "+rs.getString(2)+" "+rs.getFloat(3));
+			} //end while
+            
+            
+            
+            rs.close();
+			conn.close();
+			System.out.println("\nDisconnected from database");
+			} //end try
+
+			catch(ClassNotFoundException e) {
+			e.printStackTrace();
+			}
+
+			catch(SQLException e) {
+			e.printStackTrace();
+			}
+			
+			catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+}
