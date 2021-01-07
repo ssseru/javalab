@@ -1,0 +1,46 @@
+HTML file
+
+<!DOCTYPE html>
+<HTML>
+<BODY>
+<FORM ACTION="initials" METHOD="POST">
+ENTER NAME: <INPUT TYPE="TEXT" NAME="NAME"><BR>
+<INPUT TYPE="SUBMIT" VALUE="SUBMIT"><HR><HR>
+</FORM>
+</BODY>
+</HTML>
+
+
+Servlet File
+
+import java.io.*; 
+import java.util.*; 
+import javax.servlet.*; 
+import javax.servlet.http.*;
+import javax.servlet.annotation.WebServlet;
+@WebServlet ("/initials")
+public class Q5 extends HttpServlet { 
+	
+	public static String initials(String name) {
+		name = name.trim();
+		String init = ""+name.charAt(0);
+		int n = name.length();
+		for(int i=1;i<n-1;i++) {
+			if(name.charAt(i)==32) {
+				init = init+Character.toUpperCase(name.charAt(i+1)); 
+			}
+		}
+		return init;
+	}
+	
+ 
+  public void doPost(HttpServletRequest req,  HttpServletResponse res)throws ServletException, IOException { 
+     // Get print writer. 
+    PrintWriter out = res.getWriter(); 
+    res.setContentType("text/html"); 
+	String name=req.getParameter("NAME");
+	String init = initials(name);
+	out.println("<h1>"+init+"</h1>");
+  }
+
+  }
