@@ -1,0 +1,90 @@
+import java.sql.*;
+import java.util.*;
+public class Q3{
+	public static void main(String[] args) {
+		System.out.println("MySQL Connect Example.");
+		Connection conn = null;
+		try {
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/1ms18cs133","root","");
+			conn.setAutoCommit(false);
+			System.out.println("Connected to the database\n");
+			Statement stmt = conn.createStatement();
+			
+			String query1 = "Select * from Bank";
+			ResultSet rs = stmt.executeQuery(query1);
+			System.out.println("\nUser details before transactions");
+			System.out.println("ID\tName\tBalance");
+			System.out.println("------------------------");
+	        while (rs.next()){
+					System.out.println(rs.getInt(1)+"\t"+rs.getString(2)+"\t"+rs.getInt(3));
+			} //end while
+	        
+	        Scanner in = new Scanner(System.in);
+	        System.out.println("\n1)Deposit,2)Withdraw");
+	        int n=in.nextInt();
+			
+	        if(n==1) {
+				System.out.print("ID = ");
+				int id=in.nextInt();
+				System.out.println("Amount = ");
+				int amt = in.nextInt();
+				String tempquery = "Select Balance from Bank where user_id="+id;
+				rs = stmt.executeQuery(tempquery);
+				rs.next();
+				int updated_amount = rs.getInt(1)+amt;
+				String updatequery = "update Bank set Balance="+updated_amount+" where User_id="+id;
+		        int count = stmt.executeUpdate(updatequery);
+		        conn.commit();
+			}
+			
+	        if(n==2) {
+				System.out.print("ID = ");
+				int id=in.nextInt();
+				System.out.println("Amount = ");
+				int amt = in.nextInt();
+				
+				Savepoint sp = conn.setSavepoint();// Savepoint if withdrawl is more than balance
+				
+				String tempquery = "Select Balance from Bank where user_id="+id;
+				rs = stmt.executeQuery(tempquery);
+				rs.next();
+				int updated_amount = rs.getInt(1)-amt;
+				String updatequery = "update Bank set Balance="+updated_amount+" where User_id="+id;
+		        int count = stmt.executeUpdate(updatequery);
+		        
+		        if(updated_amount<0) {
+		        	System.out.println("Withdrawl failed due to low balance");
+					conn.rollback(sp);
+					conn.releaseSavepoint(sp);
+				}
+		       conn.commit();
+	        }
+	        
+			rs = stmt.executeQuery(query1);
+			System.out.println("\nUser details after transactions");
+			System.out.println("ID\tName\tBalance");
+			System.out.println("------------------------");
+	        while (rs.next()){
+					System.out.println(rs.getInt(1)+"\t"+rs.getString(2)+"\t"+rs.getInt(3));
+			} //end while
+            
+            rs.close();
+			conn.close();
+			System.out.println("\nDisconnected from database");
+			} //end try
+
+			catch(ClassNotFoundException e) {
+			e.printStackTrace();
+			}
+
+			catch(SQLException e) {
+			e.printStackTrace();
+			}
+			
+			catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+}
